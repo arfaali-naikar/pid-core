@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build
+      - name: Build
+        run: cmake --build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  cross-compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install arm toolchain
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y gcc-arm-none-eabi
+      - name: Build library for cortex-m4
+        run: |
+          arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -Os -ffreestanding \
+            -Iinclude -c src/pid.c -o pid_cortex_m4.o
+      - name: Report flash and RAM use
+        run: |
+          echo "## cortex-m4 size (pid.c)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          arm-none-eabi-size pid_cortex_m4.o >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          read -r text data bss _ <<< "$(arm-none-eabi-size pid_cortex_m4.o | tail -1)"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "flash (text + data): $((text + data)) bytes" >> "$GITHUB_STEP_SUMMARY"
+          echo "ram (data + bss): $((data + bss)) bytes" >> "$GITHUB_STEP_SUMMARY"
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y cppcheck clang-format
+      - name: cppcheck
+        run: |
+          cppcheck --enable=warning,style,performance --error-exitcode=1 \
+            --check-level=exhaustive -I include src/ include/
+      - name: clang-format check
+        run: |
+          clang-format --dry-run --Werror \
+            include/pid.h src/pid.c sim/motor.h sim/motor.c sim/main.c tests/test_pid.c

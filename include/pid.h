@@ -19,7 +19,7 @@ typedef struct {
     float kd;
 
     float sample_time; /* seconds between calls to pid_update, must be > 0 */
-    float tau;          /* derivative low-pass filter time constant, seconds */
+    float tau;         /* derivative low-pass filter time constant, seconds */
 
     float out_min;
     float out_max;
@@ -36,8 +36,8 @@ typedef struct {
  * pid_update. tau controls how aggressively the derivative term is
  * smoothed: larger values filter out more noise but add more lag.
  */
-void pid_init(pid_controller_t *pid, float kp, float ki, float kd, float sample_time,
-              float out_min, float out_max, float tau);
+void pid_init(pid_controller_t *pid, float kp, float ki, float kd, float sample_time, float out_min,
+              float out_max, float tau);
 
 /*
  * Changes the gains without touching the integrator or derivative history,

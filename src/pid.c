@@ -110,7 +110,8 @@ float pid_update(pid_controller_t *pid, float setpoint, float measurement) {
     float unsaturated_output = proportional + pid->ki * pid->integrator + derivative_term;
     int saturated_high = unsaturated_output > pid->out_max;
     int saturated_low = unsaturated_output < pid->out_min;
-    int would_deepen_saturation = (saturated_high && error > 0.0f) || (saturated_low && error < 0.0f);
+    int would_deepen_saturation =
+        (saturated_high && error > 0.0f) || (saturated_low && error < 0.0f);
 
     if (!would_deepen_saturation) {
         pid->integrator += error * pid->sample_time;

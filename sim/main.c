@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SIM_STEP 0.001f /* 1 ms, the same fixed rate you would drive pid_update from a timer isr */
+#define SIM_STEP 0.001f /* 1 ms, the rate you would drive pid_update from a timer isr */
 #define SIM_DURATION 4.5f
 
 /*

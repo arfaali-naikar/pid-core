@@ -10,9 +10,9 @@
  */
 typedef struct {
     float speed;           /* current true speed, arbitrary units */
-    float gain;             /* steady-state speed produced per volt of drive */
-    float tau;               /* mechanical time constant, seconds */
-    float load_torque;      /* constant disturbance, expressed as a speed offset */
+    float gain;            /* steady-state speed produced per volt of drive */
+    float tau;             /* mechanical time constant, seconds */
+    float load_torque;     /* constant disturbance, expressed as a speed offset */
     float noise_amplitude; /* peak amplitude of the noise added to measured speed */
 } motor_t;
 
