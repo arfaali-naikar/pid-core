@@ -8,3 +8,13 @@ add_compile_options(-Wall -Wextra)
 
 add_library(pid STATIC src/pid.c)
 target_include_directories(pid PUBLIC include)
+
+enable_testing()
+
+add_library(unity STATIC tests/unity/unity.c)
+target_include_directories(unity PUBLIC tests/unity)
+
+add_executable(test_pid tests/test_pid.c)
+target_link_libraries(test_pid PRIVATE pid unity)
+
+add_test(NAME test_pid COMMAND test_pid)
