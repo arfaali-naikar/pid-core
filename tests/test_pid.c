@@ -2,14 +2,14 @@
 #include "unity.h"
 
 /* Unity calls these before/after every test; nothing to do here since each
- * test builds its own pid_t on the stack. */
+ * test builds its own pid_controller_t on the stack. */
 void setUp(void) {}
 void tearDown(void) {}
 
 /* Pure proportional gain on a fixed error should give exactly kp * error,
  * with the integrator and derivative both starting at zero. */
 void test_proportional_only_gives_kp_times_error(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 2.0f, 0.0f, 0.0f, 0.01f, -100.0f, 100.0f, 0.02f);
 
     float output = pid_update(&pid, 10.0f, 4.0f);
@@ -21,7 +21,7 @@ void test_proportional_only_gives_kp_times_error(void) {
  * integrator should keep accumulating and eventually drive the output past
  * a small target, showing it removes steady-state error over time. */
 void test_integral_accumulates_and_removes_steady_state_error(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 0.0f, 5.0f, 0.0f, 0.1f, -100.0f, 100.0f, 0.02f);
 
     float output = 0.0f;
@@ -37,7 +37,7 @@ void test_integral_accumulates_and_removes_steady_state_error(void) {
 /* A large enough error must not push the output past the configured
  * limits, regardless of how big the gain is. */
 void test_output_clamps_to_upper_and_lower_limits(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 100.0f, 0.0f, 0.0f, 0.01f, -5.0f, 5.0f, 0.02f);
 
     float high = pid_update(&pid, 1000.0f, 0.0f);
@@ -53,7 +53,7 @@ void test_output_clamps_to_upper_and_lower_limits(void) {
  * (setpoint back in range), the output should come off the limit within a
  * step or two instead of staying pinned by an oversized integrator. */
 void test_integrator_does_not_wind_up_while_saturated(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 0.0f, 2.0f, 0.0f, 0.01f, -1.0f, 1.0f, 0.02f);
 
     /* Drive it hard into positive saturation. It takes a handful of steps
@@ -87,7 +87,7 @@ void test_integrator_does_not_wind_up_while_saturated(void) {
  * instantly but the measurement has not moved, so the derivative term
  * (and therefore the output) should not spike. */
 void test_step_setpoint_does_not_cause_derivative_kick(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 1.0f, 0.0f, 50.0f, 0.01f, -1000.0f, 1000.0f, 0.02f);
 
     /* Settle the derivative history at a constant measurement first. */
@@ -106,7 +106,7 @@ void test_step_setpoint_does_not_cause_derivative_kick(void) {
  * in for sensor noise) and check the filtered derivative settles to a much
  * smaller magnitude than the raw sample-to-sample derivative would be. */
 void test_derivative_filter_smooths_noisy_measurement(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 0.0f, 0.0f, 1.0f, 0.01f, -1000.0f, 1000.0f, 0.1f);
 
     float raw_derivative_magnitude = 10.0f / 0.01f; /* a 10 unit jump over dt */
@@ -125,7 +125,7 @@ void test_derivative_filter_smooths_noisy_measurement(void) {
  * so a controller can be reused for a fresh run without a derivative kick
  * from stale history. */
 void test_reset_clears_integrator_and_derivative_history(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 1.0f, 5.0f, 1.0f, 0.1f, -100.0f, 100.0f, 0.02f);
 
     pid_update(&pid, 10.0f, 0.0f);
@@ -144,7 +144,7 @@ void test_reset_clears_integrator_and_derivative_history(void) {
  * integrator backwards, so pid_update should refuse to compute anything
  * and return 0.0f instead. */
 void test_zero_and_negative_sample_time_return_zero(void) {
-    pid_t pid;
+    pid_controller_t pid;
     pid_init(&pid, 1.0f, 1.0f, 1.0f, 0.01f, -100.0f, 100.0f, 0.02f);
 
     pid.sample_time = 0.0f;

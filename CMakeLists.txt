@@ -18,3 +18,7 @@ add_executable(test_pid tests/test_pid.c)
 target_link_libraries(test_pid PRIVATE pid unity)
 
 add_test(NAME test_pid COMMAND test_pid)
+
+add_executable(motor_sim sim/main.c sim/motor.c)
+target_link_libraries(motor_sim PRIVATE pid)
+target_include_directories(motor_sim PRIVATE sim)

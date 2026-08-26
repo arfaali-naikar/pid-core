@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-void pid_init(pid_t *pid, float kp, float ki, float kd, float sample_time, float out_min,
+void pid_init(pid_controller_t *pid, float kp, float ki, float kd, float sample_time, float out_min,
               float out_max, float tau) {
     if (pid == NULL) {
         return;
@@ -19,7 +19,7 @@ void pid_init(pid_t *pid, float kp, float ki, float kd, float sample_time, float
     pid_reset(pid);
 }
 
-void pid_set_gains(pid_t *pid, float kp, float ki, float kd) {
+void pid_set_gains(pid_controller_t *pid, float kp, float ki, float kd) {
     if (pid == NULL) {
         return;
     }
@@ -29,7 +29,7 @@ void pid_set_gains(pid_t *pid, float kp, float ki, float kd) {
     pid->kd = kd;
 }
 
-void pid_set_output_limits(pid_t *pid, float out_min, float out_max) {
+void pid_set_output_limits(pid_controller_t *pid, float out_min, float out_max) {
     if (pid == NULL) {
         return;
     }
@@ -38,7 +38,7 @@ void pid_set_output_limits(pid_t *pid, float out_min, float out_max) {
     pid->out_max = out_max;
 }
 
-void pid_reset(pid_t *pid) {
+void pid_reset(pid_controller_t *pid) {
     if (pid == NULL) {
         return;
     }
@@ -49,7 +49,7 @@ void pid_reset(pid_t *pid) {
     pid->has_prev_measurement = 0;
 }
 
-float pid_update(pid_t *pid, float setpoint, float measurement) {
+float pid_update(pid_controller_t *pid, float setpoint, float measurement) {
     if (pid == NULL) {
         return 0.0f;
     }
